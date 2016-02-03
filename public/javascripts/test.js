@@ -1,15 +1,17 @@
-var chart, chart2, chart3;
+var chart, chart2, chart3, chart4;
 
 var numberOfSeries = 2,
     numberOfDataPoint = 11,
     data = [],
     data2 = [],
-    data3 = [];
+    data3 = [],
+    data4 = [];
 
 
 window.onload = function() {
 
-    drawDft();
+    drawMultiSinTime();
+    drawMultiSinFreq();
     drawSimple();
     drawLineChart();
 
@@ -20,10 +22,17 @@ window.onload = function() {
         });
     }
 
-    function drawDft() {
-        d3.json("dft", function(error, json) {
+    function drawMultiSinTime() {
+        d3.json("multi_sin_time", function(error, json) {
           if (error) return console.warn(error);
-          displayDft(json);
+          displayMultiSinTime(json);
+        });
+    }
+
+    function drawMultiSinFreq() {
+        d3.json("multi_sin_freq", function(error, json) {
+          if (error) return console.warn(error);
+          displayMultiSinFreq(json);
         });
     }
 
@@ -63,22 +72,39 @@ window.onload = function() {
         chart2.render();
     }
 
-    function displayDft(rawData) {
-            chart3 = lineChart()
-                .svg(d3.select("svg#dft"))
-                .autoScale()
-                .xAxisToZero()
-                .noGrid()
-                .noDots();
+    function displayMultiSinTime(rawData) {
+        chart3 = lineChart()
+            .svg(d3.select("svg#multiSinTime"))
+            .autoScale()
+            .xAxisToZero()
+            .noGrid()
+            .noDots();
 
-            data3.push(d3.range(rawData.length).map(function(i) {
-                return {x: i, y: rawData[i]};
-            }));
+        data3.push(d3.range(rawData.length).map(function(i) {
+            return {x: i, y: rawData[i]};
+        }));
 
-            chart3.addSeries(data3[0]);
+        chart3.addSeries(data3[0]);
 
-            chart3.render();
-        }
+        chart3.render();
+    }
+
+    function displayMultiSinFreq(rawData) {
+        chart4 = lineChart()
+            .svg(d3.select("svg#multiSinFreq"))
+            .autoScale()
+            .xAxisToZero()
+            .noGrid()
+            .noDots();
+
+        data4.push(d3.range(rawData.length).map(function(i) {
+            return {x: i, y: rawData[i]};
+        }));
+
+        chart4.addSeries(data4[0]);
+
+        chart4.render();
+    }
 
     function displaySimple_(data) {
         var svg = d3.select("svg#simple");
@@ -294,8 +320,8 @@ function lineChart() { // <-1A
     function renderAxes(svg) {
         var axesG = svg.append("g").attr("class", "axes");
 
-        renderXAxis(axesG);
         renderYAxis(axesG);
+        renderXAxis(axesG);
     }
 
     function renderXAxis(axesG){
@@ -303,18 +329,16 @@ function lineChart() { // <-1A
                 .scale(_x.range([0, quadrantWidth()]))
                 .orient("bottom");
 
-        yStartFinal = _x_axis_to_zero ? yStartZero() : yStart();
-
         axesG.append("g")
                 .attr("class", "x axis")
                 .attr("transform", function () {
-                    return "translate(" + xStart() + "," + yStartFinal + ")";
+                    return "translate(" + xStart() + "," + yStartFinal() + ")";
                 })
                 .call(xAxis);
 
         if (_withGrid) {
-            y1 = _x_axis_to_zero ? zeroPos() : 0;
-            y2 = _x_axis_to_zero ? zeroPos() - quadrantHeight() : -quadrantHeight();
+            y1 = _x_axis_to_zero ? quadrantHeight() - _y(0) : 0;
+            y2 = _x_axis_to_zero ? -_y(0) : -quadrantHeight();
 
             d3.selectAll("g.x g.tick")
                 .append("line")
@@ -372,6 +396,7 @@ function lineChart() { // <-1A
                     .attr("clip-path", "url(#body-clip)");
 
         renderLines();
+        renderAreas();
 
         if (_withDots) {
             renderDots();
@@ -397,6 +422,27 @@ function lineChart() { // <-1A
             .data(_data)
             .transition() //<-4D
             .attr("d", function (d) { return _line(d); });
+    }
+
+    function renderAreas() {
+        var area = d3.svg.area() // <-A
+            .x(function(d) { return _x(d.x); })
+            .y0(_y(0))
+            .y1(function(d) { return _y(d.y); });
+
+        _bodyG.selectAll("path.area")
+            .data(_data)
+            .enter() // <-B
+            .append("path")
+            .style("fill", function (d, i) {
+                return _colors(i);
+            })
+            .attr("class", "area");
+
+        _bodyG.selectAll("path.area")
+            .data(_data)
+            .transition() // <-C
+            .attr("d", function (d) { return area(d); });
     }
 
     function renderDots() {
@@ -427,12 +473,8 @@ function lineChart() { // <-1A
         return _height - _margins.bottom;
     }
 
-    function zeroPos() {
-        return quadrantHeight() * _y(0);
-    }
-
-    function yStartZero() {
-        return yStart() - zeroPos();
+    function yStartFinal() {
+        return _x_axis_to_zero ? _y(0) + _margins.top : yStart();
     }
 
     function xEnd() {
