@@ -13,7 +13,7 @@ module.exports = function(grunt) {
         'uglify': {
             'development': {
                 'files': {
-                    'public/javascripts/test.js': ['public/javascripts/chart-main.js', 'public/javascripts/line-chart.js', 'public/javascripts/embedded.js']
+                    'public/javascripts/test.js': ['public/javascripts/chart-main.js', 'public/javascripts/line-chart.js', 'public/javascripts/three-chart.js', 'public/javascripts/embedded.js']
                 }
             }
         }

@@ -12,6 +12,7 @@ window.onload = function() {
     drawLineChart();
     drawSinCos();
     writeToConsole("szeva");
+    three();
 
     function drawMultiSinTime() {
         d3.json("multi_sin_time", function(error, json) {
