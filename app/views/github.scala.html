@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Github User display</title>
+    <link rel="stylesheet" media="screen"
+          href="@routes.Assets.versioned("stylesheets/main.css")">
+    <link rel="shortcut icon" type="image/png"
+          href="@routes.Assets.versioned("images/favicon.png")">
+    <link rel="stylesheet" media="screen"
+          href=@routes.Assets.versioned("lib/nvd3/nv.d3.css") >
+    <link rel="stylesheet" media="screen"
+          href=@routes.Assets.versioned("lib/bootstrap/css/bootstrap.css")>
+
+    <script type="text/javascript"
+            src=@routes.Assets.versioned("lib/requirejs/require.js").url
+            data-main=@routes.Assets.versioned("javascripts/main.js").url>
+    </script>
+</head>
+<body>
+<div class="container">
+    <!-- Title row -->
+    <div class="row">
+        <h1>Github user search</h1>
+    </div>
+    <!-- User search row -->
+    <div class="row">
+        <label>Github user: </label>
+        <input type="text" id="user-selection">
+        <span id="searching-span"></span>
+        <hr />
+    </div>
+    <!-- Results row -->
+    <div id="response" class="row"></div>
+</div>
+</body>
+</html>
